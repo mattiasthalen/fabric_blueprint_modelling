@@ -4,7 +4,10 @@ In this project I explore the concept of building a solution based on blueprints
 
 I generate TPCH with a scale factor of 1000, divided into 1000 parts, so each run will incrementally generate, ingest, and organize one part at a time.
 
-All is done within a single *Fabric Lakehouse* and leveraging *Materialized Lake Views*.
+All is done within a single *Fabric Lakehouse* and leveraging *Materialized Lake Views (MLV)*.
+Currently the MLVs are fully refreshed, but I'm hoping Microsoft will release incremental refreshes soon.
+
+SQLGlot is used for both the blueprint generation, but also for comparing the current MLV expression, to decide if the MLV should be refreshed or recreated.
 
 ## Notebook Orchestration
 ```mermaid
