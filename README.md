@@ -21,28 +21,32 @@ flowchart LR
 ## Lineage
 ```mermaid
 flowchart LR
+    classDef bronze fill:#CD7F32,color:black
+    classDef silver fill:#C0C0C0,color:black
+    classDef gold fill:#FFD700,color:black
+    
     source@{label: TPCH, shape: "database"}
 
-    subgraph raw[Raw Data]
-        raw__tpch__customer@{shape: rounded}
-        raw__tpch__lineitem@{shape: rounded}
-        raw__tpch__nation@{shape: rounded}
-        raw__tpch__orders@{shape: rounded}
-        raw__tpch__part@{shape: rounded}
-        raw__tpch__partsupp@{shape: rounded}
-        raw__tpch__region@{shape: rounded}
-        raw__tpch__supplier@{shape: rounded}
+    subgraph raw[raw.*]
+        raw__tpch__customer:::bronze@{shape: rounded}
+        raw__tpch__lineitem:::bronze@{shape: rounded}
+        raw__tpch__nation:::bronze@{shape: rounded}
+        raw__tpch__orders:::bronze@{shape: rounded}
+        raw__tpch__part:::bronze@{shape: rounded}
+        raw__tpch__partsupp:::bronze@{shape: rounded}
+        raw__tpch__region:::bronze@{shape: rounded}
+        raw__tpch__supplier:::bronze@{shape: rounded}
     end
 
-    subgraph organized[Organized Data]
-        frame__tpch__customer@{shape: rounded}
-        frame__tpch__lineitem@{shape: rounded}
-        frame__tpch__nation@{shape: rounded}
-        frame__tpch__orders@{shape: rounded}
-        frame__tpch__part@{shape: rounded}
-        frame__tpch__partsupp@{shape: rounded}
-        frame__tpch__region@{shape: rounded}
-        frame__tpch__supplier@{shape: rounded}
+    subgraph organized[hook.*]
+        frame__tpch__customer:::silver@{shape: rounded}
+        frame__tpch__lineitem:::silver@{shape: rounded}
+        frame__tpch__nation:::silver@{shape: rounded}
+        frame__tpch__orders:::silver@{shape: rounded}
+        frame__tpch__part:::silver@{shape: rounded}
+        frame__tpch__partsupp:::silver@{shape: rounded}
+        frame__tpch__region:::silver@{shape: rounded}
+        frame__tpch__supplier:::silver@{shape: rounded}
     end
 
     source --> raw__tpch__customer --> frame__tpch__customer
