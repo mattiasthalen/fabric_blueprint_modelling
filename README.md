@@ -16,9 +16,10 @@ flowchart LR
     ingest@{label: "Ingest TPCH", shape: rounded}
     manifest@{label: "Load Manifest", shape: rounded}
     organize@{label: "Organize - HOOK", shape: rounded}
+    pgraph@{label: "Generate Graph", shape: rounded}
 
     generate --> ingest
-    ingest & manifest --> organize
+    ingest & manifest --> organize --> pgraph
 ```
 
 ## Lineage
@@ -52,14 +53,23 @@ flowchart LR
         frame__tpch__supplier:::silver@{shape: rounded}
     end
 
-    source --> raw__tpch__customer --> frame__tpch__customer
-    source --> raw__tpch__lineitem --> frame__tpch__lineitem
-    source --> raw__tpch__nation --> frame__tpch__nation
-    source --> raw__tpch__orders --> frame__tpch__orders
-    source --> raw__tpch__part --> frame__tpch__part
-    source --> raw__tpch__partsupp --> frame__tpch__partsupp
-    source --> raw__tpch__region --> frame__tpch__region
-    source --> raw__tpch__supplier --> frame__tpch__supplier
+    subgraph pgraph[graph.*]
+        direction LR
+        nodes:::silver@{shape: rounded}
+        edges:::silver@{shape: rounded}
+        safe_edges:::silver@{shape: rounded}
+    end
+
+    source --> raw__tpch__customer --> frame__tpch__customer --> pgraph
+    source --> raw__tpch__lineitem --> frame__tpch__lineitem --> pgraph
+    source --> raw__tpch__nation --> frame__tpch__nation --> pgraph
+    source --> raw__tpch__orders --> frame__tpch__orders --> pgraph
+    source --> raw__tpch__part --> frame__tpch__part --> pgraph
+    source --> raw__tpch__partsupp --> frame__tpch__partsupp --> pgraph
+    source --> raw__tpch__region --> frame__tpch__region --> pgraph
+    source --> raw__tpch__supplier --> frame__tpch__supplier --> pgraph
+
+    nodes & edges --> safe_edges
 ```
 
 ## Manifest
