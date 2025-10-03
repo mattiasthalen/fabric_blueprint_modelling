@@ -9,67 +9,93 @@ Currently the MLVs are fully refreshed, but I'm hoping Microsoft will release in
 
 SQLGlot is used for both the blueprint generation, but also for comparing the current MLV expression, to decide if the MLV should be refreshed or recreated.
 
-## Notebook Orchestration
+## Pipeline
+### Blueprint Orchestration
 ```mermaid
 flowchart LR
-    generate@{label: "Generate TPCH", shape: rounded}
-    ingest@{label: "Ingest TPCH", shape: rounded}
-    manifest@{label: "Load Manifest", shape: rounded}
-    organize@{label: "Organize - HOOK", shape: rounded}
-    pgraph@{label: "Generate Graph", shape: rounded}
+  generate@{label: "Generate - TPCH", shape: rounded}
+  ingest@{label: "Ingest - TPCH", shape: rounded}
+  manifest@{label: "Load - Manifest", shape: rounded}
+  mlvs@{label: "Generate - MLVs", shape: rounded}
 
-    generate --> ingest
-    ingest & manifest --> organize --> pgraph
+  generate --> ingest
+  ingest & manifest --> mlvs
 ```
 
 ## Lineage
 ```mermaid
 flowchart LR
-    classDef bronze fill:#CD7F32,color:black
-    classDef silver fill:#C0C0C0,color:black
-    classDef gold fill:#FFD700,color:black
-    
-    source@{label: TPCH, shape: "database"}
+  classDef bronze fill:#CD7F32,color:black
+  classDef silver fill:#C0C0C0,color:black
+  classDef gold fill:#FFD700,color:black
 
-    subgraph raw[raw.*]
-        raw__tpch__customer:::bronze@{shape: rounded}
-        raw__tpch__lineitem:::bronze@{shape: rounded}
-        raw__tpch__nation:::bronze@{shape: rounded}
-        raw__tpch__orders:::bronze@{shape: rounded}
-        raw__tpch__part:::bronze@{shape: rounded}
-        raw__tpch__partsupp:::bronze@{shape: rounded}
-        raw__tpch__region:::bronze@{shape: rounded}
-        raw__tpch__supplier:::bronze@{shape: rounded}
-    end
+  source@{label: TPCH, shape: "database"}
 
-    subgraph organized[hook.*]
-        frame__tpch__customer:::silver@{shape: rounded}
-        frame__tpch__lineitem:::silver@{shape: rounded}
-        frame__tpch__nation:::silver@{shape: rounded}
-        frame__tpch__orders:::silver@{shape: rounded}
-        frame__tpch__part:::silver@{shape: rounded}
-        frame__tpch__partsupp:::silver@{shape: rounded}
-        frame__tpch__region:::silver@{shape: rounded}
-        frame__tpch__supplier:::silver@{shape: rounded}
-    end
+  subgraph raw[das__raw.*]
+    direction LR
+    raw__tpch__customer:::bronze@{shape: rounded}
+    raw__tpch__lineitem:::bronze@{shape: rounded}
+    raw__tpch__nation:::bronze@{shape: rounded}
+    raw__tpch__orders:::bronze@{shape: rounded}
+    raw__tpch__part:::bronze@{shape: rounded}
+    raw__tpch__partsupp:::bronze@{shape: rounded}
+    raw__tpch__region:::bronze@{shape: rounded}
+    raw__tpch__supplier:::bronze@{shape: rounded}
+  end
 
-    subgraph pgraph[graph.*]
-        direction LR
-        nodes:::silver@{shape: rounded}
-        edges:::silver@{shape: rounded}
-        safe_edges:::silver@{shape: rounded}
-    end
+  subgraph organized[dab__hook.*]
+    direction LR
+    frame__tpch__customer:::silver@{shape: rounded}
+    frame__tpch__lineitem:::silver@{shape: rounded}
+    frame__tpch__nation:::silver@{shape: rounded}
+    frame__tpch__orders:::silver@{shape: rounded}
+    frame__tpch__part:::silver@{shape: rounded}
+    frame__tpch__partsupp:::silver@{shape: rounded}
+    frame__tpch__region:::silver@{shape: rounded}
+    frame__tpch__supplier:::silver@{shape: rounded}
+  end
 
-    source --> raw__tpch__customer --> frame__tpch__customer --> pgraph
-    source --> raw__tpch__lineitem --> frame__tpch__lineitem --> pgraph
-    source --> raw__tpch__nation --> frame__tpch__nation --> pgraph
-    source --> raw__tpch__orders --> frame__tpch__orders --> pgraph
-    source --> raw__tpch__part --> frame__tpch__part --> pgraph
-    source --> raw__tpch__partsupp --> frame__tpch__partsupp --> pgraph
-    source --> raw__tpch__region --> frame__tpch__region --> pgraph
-    source --> raw__tpch__supplier --> frame__tpch__supplier --> pgraph
+  subgraph pgraph[dar__graph.*]
+    direction LR
+    nodes:::gold@{shape: rounded}
+    edges:::gold@{shape: rounded}
 
-    nodes & edges --> safe_edges
+    nodes --> edges
+  end
+
+  subgraph uss[dar__uss.*]
+    direction LR
+
+    _bridge:::gold@{shape: rounded}
+    tpch__customer:::gold@{shape: rounded}
+    tpch__lineitem:::gold@{shape: rounded}
+    tpch__nation:::gold@{shape: rounded}
+    tpch__orders:::gold@{shape: rounded}
+    tpch__part:::gold@{shape: rounded}
+    tpch__partsupp:::gold@{shape: rounded}
+    tpch__region:::gold@{shape: rounded}
+    tpch__supplier:::gold@{shape: rounded}
+  end
+
+  %%source --> raw --> organized --> pgraph
+  source --> raw__tpch__customer --> frame__tpch__customer --> pgraph
+  source --> raw__tpch__lineitem --> frame__tpch__lineitem --> pgraph
+  source --> raw__tpch__nation --> frame__tpch__nation --> pgraph
+  source --> raw__tpch__orders --> frame__tpch__orders --> pgraph
+  source --> raw__tpch__part --> frame__tpch__part --> pgraph
+  source --> raw__tpch__partsupp --> frame__tpch__partsupp --> pgraph
+  source --> raw__tpch__region --> frame__tpch__region --> pgraph
+  source --> raw__tpch__supplier --> frame__tpch__supplier --> pgraph
+
+  pgraph -.-> _bridge
+  pgraph -.-> tpch__customer
+  pgraph -.-> tpch__lineitem
+  pgraph -.-> tpch__nation
+  pgraph -.-> tpch__orders
+  pgraph -.-> tpch__part
+  pgraph -.-> tpch__partsupp
+  pgraph -.-> tpch__region
+  pgraph -.-> tpch__supplier
 ```
 
 ## Manifest
